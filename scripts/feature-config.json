@@ -4,6 +4,7 @@
     "components",
     "constants",
     "hooks",
+    "pages",
     "schemas",
     "stores",
     "types",
@@ -31,8 +32,16 @@
       "template": "export * from './{{name}}.queries';\nexport * from './use{{PascalName}}Logic';"
     },
     {
+      "path": "pages/{{PascalName}}Page.tsx",
+      "template": "import React from 'react';\n\n/**\n * {{PascalName}}Page — Trang hiển thị giao diện chính của feature {{name}}.\n */\nexport const {{PascalName}}Page = React.memo(() => {\n  return (\n    <div className=\"space-y-4\">\n      <h1 className=\"text-2xl font-bold tracking-tight\">{{PascalName}}</h1>\n      <p className=\"text-muted-foreground\">Nội dung trang {{name}}</p>\n    </div>\n  );\n});\n\n{{PascalName}}Page.displayName = '{{PascalName}}Page';"
+    },
+    {
+      "path": "pages/index.ts",
+      "template": "export * from './{{PascalName}}Page';"
+    },
+    {
       "path": "index.ts",
-      "template": "export * from './api/{{name}}.api';\nexport * from './hooks';\nexport * from './schemas/{{name}}.schema';\nexport * from './types/{{name}}.types';"
+      "template": "export * from './api/{{name}}.api';\nexport * from './hooks';\nexport * from './pages';\nexport * from './schemas/{{name}}.schema';\nexport * from './types/{{name}}.types';"
     }
   ]
 }

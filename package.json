@@ -18,7 +18,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:run": "vitest run",
-    "feature:new": "sh -c 'mkdir -p src/features/$1/{api,components,hooks,schemas,stores,types} && touch src/features/$1/index.ts src/features/$1/components/index.ts src/features/$1/types/index.ts' _",
+    "feature:new": "sh -c 'mkdir -p src/features/$1/{api,components,hooks,pages,schemas,stores,types} && touch src/features/$1/index.ts src/features/$1/components/index.ts src/features/$1/pages/index.ts src/features/$1/types/index.ts' _",
     "gen:feature": "node scripts/generate-feature.mjs",
     "doctor": "npx react-doctor@latest"
   },
