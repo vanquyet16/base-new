@@ -1,0 +1,21 @@
+{
+  "ignore": [
+    "src/components/ui/**",
+    "src/hooks/**",
+    "src/test/**",
+    "src/types/**",
+    "src/lib/utils/**",
+    "src/features/**/index.ts",
+    "src/features/**/components/index.ts",
+    "src/features/**/hooks/index.ts",
+    "src/features/auth/hooks/useMe.ts",
+    "src/components/common/ErrorBoundary/ErrorBoundary.tsx",
+    "src/layouts/AdminLayout/index.ts",
+    "src/config/constants.ts",
+    "src/config/env.ts",
+    "src/features/auth/api/auth.api.ts",
+    "src/features/dashboard/**",
+    "src/lib/axios/index.ts",
+    "src/components/common/FormFieldWrapper/**"
+  ]
+}

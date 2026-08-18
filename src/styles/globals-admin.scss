@@ -1,0 +1,12 @@
+/* PATH: src/styles/globals-admin.css */
+/* Styles riêng cho AdminLayout — áp dụng khi [data-layout="admin"] */
+
+/* ─── ReactFlow Overrides ────────────────────────────────────────────────────── */
+/* Override bg của ReactFlow canvas trong trang Workflow.                         */
+/* Phải dùng !important vì @xyflow/react/dist/style.css set bg trực tiếp         */
+/* trên .react-flow với cùng specificity.                                        */
+[data-layout="admin"] .workflow-canvas .react-flow {
+  background-color: #f1f5f9 !important; /* slate-200: xám nhạt dễ nhìn */
+}
+
+/* ─── Admin-specific utilities (thêm theo nhu cầu) ───────────────────────────── */

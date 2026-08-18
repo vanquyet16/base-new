@@ -1,0 +1,38 @@
+{
+  "directories": [
+    "api",
+    "components",
+    "constants",
+    "hooks",
+    "schemas",
+    "stores",
+    "types",
+    "__tests__"
+  ],
+  "files": [
+    {
+      "path": "api/{{name}}.api.ts",
+      "template": "import { apiClient } from '@/shared/lib/axios';\n\nexport const get{{PascalName}}Api = async () => {\n  // Implementation here\n};"
+    },
+    {
+      "path": "schemas/{{name}}.schema.ts",
+      "template": "import { z } from 'zod';\n\nexport const {{name}}Schema = z.object({\n  id: z.string().optional(),\n});\n\nexport type {{PascalName}}Values = z.infer<typeof {{name}}Schema>;"
+    },
+    {
+      "path": "hooks/{{name}}.queries.ts",
+      "template": "import { useQuery, useMutation } from '@tanstack/react-query';\nimport { get{{PascalName}}Api } from '../api/{{name}}.api';\n\n/**\n * Server State Hooks — Quản lý TanStack Query (fetching, mutations, cache).\n */\nexport const use{{PascalName}}Query = () => {\n  return useQuery({\n    queryKey: ['{{name}}'],\n    queryFn: get{{PascalName}}Api,\n  });\n};\n\nexport const use{{PascalName}}Mutation = () => {\n  return useMutation({\n    mutationFn: async (data: any) => {\n       // API call here\n    },\n  });\n};"
+    },
+    {
+      "path": "hooks/use{{PascalName}}Logic.ts",
+      "template": "import { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { {{name}}Schema, type {{PascalName}}Values } from '../schemas/{{name}}.schema';\nimport { use{{PascalName}}Query, use{{PascalName}}Mutation } from './{{name}}.queries';\n\n/**\n * Unified UI Logic Hook — Đóng gói logic điều khiển (form, navigations, actions).\n */\nexport const use{{PascalName}}Logic = () => {\n  const { data, isLoading } = use{{PascalName}}Query();\n  const mutation = use{{PascalName}}Mutation();\n\n  const form = useForm<{{PascalName}}Values>({\n    resolver: zodResolver({{name}}Schema),\n    defaultValues: {},\n  });\n\n  const handleSubmit = async (values: {{PascalName}}Values) => {\n    // Implementation here\n  };\n\n  return {\n    form,\n    data,\n    isLoading,\n    isPending: mutation.isPending,\n    onSubmit: form.handleSubmit(handleSubmit),\n  };\n};"
+    },
+    {
+      "path": "hooks/index.ts",
+      "template": "export * from './{{name}}.queries';\nexport * from './use{{PascalName}}Logic';"
+    },
+    {
+      "path": "index.ts",
+      "template": "export * from './api/{{name}}.api';\nexport * from './hooks';\nexport * from './schemas/{{name}}.schema';\nexport * from './types/{{name}}.types';"
+    }
+  ]
+}
