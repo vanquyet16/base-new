@@ -25,18 +25,49 @@ alwaysApply: true
 
 ```
 src/
-├── app/                  # Next.js App Router (hoặc pages/)
-├── components/
-│   ├── ui/               # Component shadcn/ui đã tuỳ chỉnh
-│   ├── common/           # Component dùng chung toàn dự án (Button, Modal, ...)
-│   ├── layout/           # Header, Footer, Sidebar, Shell...
-│   └── features/         # Component theo tính năng (auth/, dashboard/, ...)
-├── hooks/                # Custom hooks (useXxx.ts)
-├── lib/                  # Helpers, utils, config
-├── services/             # Gọi API (axios, fetch)
-├── stores/               # State management (zustand, redux...)
-├── types/                # TypeScript interfaces & types
-└── constants/            # Hằng số toàn cục
+├── app/                  # App wrapper, providers khởi tạo
+├── assets/               # Hình ảnh, icon tĩnh, vector SVG
+├── config/               # Biến môi trường, queryClient, queryKeys, constants
+│   ├── env.ts            # Validate & type-safe biến môi trường
+│   ├── queryClient.ts    # Cấu hình TanStack Query Client
+│   └── queryKeys.ts      # Quản lý khóa định danh cache
+├── features/             # Module tính năng nghiệp vụ (Feature Modules)
+│   ├── auth/             # Xác thực: Đăng nhập, đăng ký, quên mật khẩu...
+│   │   ├── api/          # API calls cho feature
+│   │   ├── components/   # UI components riêng của feature
+│   │   ├── constants/    # Endpoints, constants nội bộ
+│   │   ├── hooks/        # Queries & Custom hooks của feature
+│   │   ├── pages/        # ⭐️ Component Trang giao diện (Tách rời khỏi Router)
+│   │   ├── schemas/      # Zod validation schemas
+│   │   ├── stores/       # Zustand store riêng của feature
+│   │   ├── types/        # TypeScript interfaces / types
+│   │   └── index.ts      # Public API xuất ra ngoài
+│   ├── dashboard/        # Bảng điều khiển / Thống kê
+│   └── demo-component/   # Module mẫu tham khảo (Form chuẩn, CustomTable, ...)
+├── layouts/              # Bố cục giao diện chung
+│   ├── AuthLayout/       # Layout trang đăng nhập, đăng ký
+│   ├── MainLayout/       # Layout chính ứng dụng (Sidebar + Header + Body)
+│   └── Shares/           # Component layout con (Sidebar, Header, NavMain...)
+├── routes/               # Định tuyến File-Based (TanStack Router)
+│   ├── __root.tsx        # Root route chứa layout gốc & Devtools
+│   ├── _authenticated/   # Các route yêu cầu quyền đăng nhập
+│   ├── _guest/           # Các route cho khách (login, register)
+│   └── errors/           # Trang lỗi 404, 500
+├── shared/               # Tài nguyên dùng chung toàn ứng dụng
+│   ├── constants/        # Hằng số toàn cục
+│   ├── hooks/            # Custom hooks chung (useDebounce, useMobile...)
+│   ├── lib/              # Tiện ích bổ trợ (Axios instance, utils, formatters)
+│   ├── services/         # Services toàn cục (Upload, ...)
+│   ├── stores/           # Stores dùng chung (Toast, UI state...)
+│   ├── types/            # Type definitions chung
+│   └── ui/               # Hệ thống Component UI
+│       ├── common/       # Component custom nâng cao (CustomTable, CustomModal...)
+│       ├── core/         # Component lõi (AppIcon, ...)
+│       └── shadcn/       # Component shadcn/ui đã tùy biến
+├── styles/               # File định dạng SCSS toàn cục & theme variables
+├── test/                 # Cấu hình kiểm thử (Test setup & mocks)
+├── main.tsx              # Điểm khởi chạy ứng dụng (Entry point)
+└── routeTree.gen.ts      # Cây route tự động sinh bởi TanStack Router
 ```
 
 > Khi tạo file mới, **LUÔN đặt đúng thư mục** theo cấu trúc trên.

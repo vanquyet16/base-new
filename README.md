@@ -65,12 +65,13 @@ src/
 │   │   ├── components/   # UI components riêng của feature
 │   │   ├── constants/    # Endpoints, constants nội bộ
 │   │   ├── hooks/        # Queries & Custom hooks của feature
+│   │   ├── pages/        # ⭐️ Component Trang giao diện (Tách rời khỏi Router)
 │   │   ├── schemas/      # Zod validation schemas
 │   │   ├── stores/       # Zustand store riêng của feature
 │   │   ├── types/        # TypeScript interfaces / types
 │   │   └── index.ts      # Public API xuất ra ngoài
 │   ├── dashboard/        # Bảng điều khiển / Thống kê
-│   └── demo-component/   # Module mẫu tham khảo
+│   └── demo-component/   # Module mẫu tham khảo (Form chuẩn, CustomTable, ...)
 ├── layouts/              # Bố cục giao diện chung
 │   ├── AuthLayout/       # Layout trang đăng nhập, đăng ký
 │   ├── MainLayout/       # Layout chính ứng dụng (Sidebar + Header + Body)
