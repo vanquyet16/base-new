@@ -4,15 +4,15 @@ import { useQueryClient, type FetchQueryOptions } from "@tanstack/react-query";
 interface UseLoadOptionsProps<
   TItem = unknown,
   TOption = TItem,
-  TParams extends Record<string, unknown> = Record<string, unknown>,
+  TParams = unknown,
 > {
   /** Hàm tạo query options (ví dụ: demoQueries.pagination) */
-  queryFactory: (params: TParams) => FetchQueryOptions<{ data?: TItem[]; totalRecord?: number }>;
+  queryFactory: (params: TParams) => object;
   /**
    * Tham số tĩnh bổ sung thêm vào body/params (ví dụ: filter mặc định)
    * Các props này sẽ được gộp chung với PageInfo và search
    */
-  defaultParams?: Partial<TParams>;
+  defaultParams?: Partial<TParams> | Record<string, unknown>;
   /** Thời gian cache dữ liệu (ms), mặc định 5 phút (300000ms) */
   staleTime?: number;
   /** Tên trường tìm kiếm khi gửi API, mặc định là "UserName" */
@@ -38,7 +38,7 @@ interface UseLoadOptionsProps<
 export const useLoadOptions = <
   TItem = unknown,
   TOption = TItem,
-  TParams extends Record<string, unknown> = Record<string, unknown>,
+  TParams = unknown,
 >({
   queryFactory,
   defaultParams = {},
@@ -69,11 +69,13 @@ export const useLoadOptions = <
         const bodyParams = {
           PageInfo: { page, pageSize },
           [searchKey]: search,
-          ...defaultParams,
-        } as unknown as TParams;
+          ...(defaultParams as Record<string, unknown>),
+        } as TParams;
+
+        const queryOpts = queryFactory(bodyParams) as unknown as FetchQueryOptions<{ data?: TItem[]; totalRecord?: number }>;
 
         const res = await queryClient.fetchQuery({
-          ...queryFactory(bodyParams),
+          ...queryOpts,
           staleTime,
         });
 

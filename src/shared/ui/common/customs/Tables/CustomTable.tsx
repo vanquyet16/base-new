@@ -73,7 +73,7 @@ export interface CustomTableProps<T> {
  * CustomTable — Component bảng dữ liệu linh hoạt dựa trên shadcn/ui.
  * Giao diện và API được thiết kế mô phỏng theo Table của Ant Design.
  */
-const CustomTable = <T extends Record<string, unknown>>({
+const CustomTable = <T extends object>({
   columns,
   data,
   rowSelection,

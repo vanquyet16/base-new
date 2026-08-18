@@ -27,7 +27,8 @@ export interface CustomDropPaginationProps<
   Group extends GroupBase<Option> = GroupBase<Option>,
   Additional = unknown,
   IsMulti extends boolean = false,
-> extends Omit<AsyncPaginateProps<Option, Group, Additional, IsMulti>, 'loadOptions'> {
+> extends Omit<AsyncPaginateProps<Option, Group, Additional, IsMulti>, 'loadOptions' | 'value'> {
+  value?: PropsValue<Option> | unknown
   options?: Option[]
   loadOptions?: AsyncPaginateProps<Option, Group, Additional, IsMulti>['loadOptions']
   maxTags?: number

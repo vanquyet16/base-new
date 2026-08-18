@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/shadcn/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/shadcn/card'
 import { Badge } from '@/shared/ui/shadcn/badge'
-import { useAuthStore } from '@/features/auth/stores/auth.store'
+import { useAuthStore } from '../stores/auth.store'
 
 /**
  * ProfilePage — Trang hiển thị và quản lý thông tin hồ sơ cá nhân.

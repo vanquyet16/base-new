@@ -1,6 +1,6 @@
 // PATH: src/features/auth/pages/LoginPage.tsx
 import React from 'react'
-import { LoginForm } from '@/features/auth/components/LoginForm'
+import { LoginForm } from '../components/LoginForm'
 
 /**
  * LoginPage — Trang đăng nhập người dùng.

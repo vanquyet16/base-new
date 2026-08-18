@@ -2,12 +2,11 @@
 // Vitest configuration for unit + integration tests
 
 import path from 'path'
-import type { PluginOption } from 'vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-    plugins: [react() as unknown as PluginOption],
+    plugins: [react() as never],
 
     test: {
         // Use jsdom for browser-like environment (React Testing Library requirement)

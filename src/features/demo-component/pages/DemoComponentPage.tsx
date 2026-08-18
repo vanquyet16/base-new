@@ -13,14 +13,14 @@ import { Input } from '@/shared/ui/shadcn/input'
 import {
   demoComponentSchema,
   type DemoComponentFormValues,
-} from '@/features/demo-component/schemas/demo-component.schema'
+} from '../schemas/demo-component.schema'
 import CustomDatePicker, { DATE_FORMATS } from '@/shared/ui/common/customs/CustomDatePicker'
 import AppIcon from '@/shared/ui/core/AppIcon'
 import CustomModalConfirm from '@/shared/ui/common/customs/Modals/CustomModalConfirm'
 import CustomModal from '@/shared/ui/common/customs/Modals/CustomModal'
 import CustomFooterModal from '@/shared/ui/common/customs/Modals/CustomFooterModal'
 import { toast } from '@/shared/stores/toast.store'
-import { DemoStandardForm } from '@/features/demo-component/components/DemoStandardForm'
+import { DemoStandardForm } from '../components/DemoStandardForm'
 
 /**
  * Interface định nghĩa dữ liệu người dùng mẫu
@@ -306,7 +306,7 @@ export const DemoComponentPage = React.memo(() => {
     // Trích xuất danh sách ID tệp tin để gửi lên máy chủ
     const submitData = {
       ...data,
-      fileIds: data.fileDinhKem?.map((f) => f.id) || [],
+      fileIds: data.fileDinhKem?.map((f: { id: string }) => f.id) || [],
     }
     console.log('🚀 ~ onStandardSubmit ~ submitData:', submitData)
     alert(`Dữ liệu gửi đi (đã map file IDs):\n${JSON.stringify(submitData, null, 2)}`)

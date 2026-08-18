@@ -1,6 +1,6 @@
 // PATH: src/features/auth/pages/RegisterPage.tsx
 import React from 'react'
-import { RegisterForm } from '@/features/auth/components/RegisterForm'
+import { RegisterForm } from '../components/RegisterForm'
 
 /**
  * RegisterPage — Trang đăng ký tài khoản mới.
