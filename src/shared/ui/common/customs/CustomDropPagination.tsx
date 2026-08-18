@@ -368,6 +368,7 @@ const CustomDropPagination = <
       multiValueLabel: () => 'text-[11px] font-semibold px-1 truncate max-w-[150px]',
       multiValueRemove: () =>
         'text-primary/40 hover:text-primary hover:bg-transparent rounded-sm ml-0.5 transition-colors',
+      menuPortal: () => 'custom-select-portal z-50',
       menu: () =>
         'z-50 mt-2 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
       menuList: () => 'p-1',
@@ -434,7 +435,6 @@ const CustomDropPagination = <
         onFocus={() => setIsFocused(true)}
         onBlur={handleBlur}
         menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
-        portalClassName="custom-select-portal"
         {...multiProps}
         {...(maxTags !== undefined ? { maxTags } : {})}
         value={internalValue as PropsValue<Option>}
