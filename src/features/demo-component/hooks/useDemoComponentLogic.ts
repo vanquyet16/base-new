@@ -7,9 +7,17 @@ import { useLoadOptions } from '@/shared/hooks/useLoadOptions';
  */
 export const useDemoComponentLogic = () => {
 
-  // Khởi tạo data lúc rỗng dựa trên factory (có thể đổi bodyParams tuỳ ý)
-  const { data, isLoading } = useQuery(demoQueries.pagination({} as any));
-  // Hàm loadOptions gọi API thực tế cho CustomDropPagination
+  // Khởi tạo data lúc rỗng dựa trên factory
+  const { data, isLoading } = useQuery(
+    demoQueries.pagination({
+      PageInfo: { page: 1, pageSize: 10 },
+      UserName: '',
+      ReceiveUserId: '',
+      ReceiveUserRoleId: '',
+      ReceiveUserDeptId: '',
+      Users: [],
+    }),
+  );
 
 
 

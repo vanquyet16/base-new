@@ -10,14 +10,16 @@ import { Input } from '@/shared/ui/shadcn/input'
 import { ChevronLeft, ChevronRight, ChevronFirst, ChevronLast } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
+export interface CustomPaginationParamPage {
+  page: number
+  pageSize: number
+  [key: string]: unknown
+}
+
 export interface CustomPaginationProps {
   total: number
-  paramPage: {
-    page: number
-    pageSize: number
-    [key: string]: unknown
-  }
-  setParamPage: (params: any) => void
+  paramPage: CustomPaginationParamPage
+  setParamPage: (params: CustomPaginationParamPage) => void
   className?: string
   paginationContent?: string
 }

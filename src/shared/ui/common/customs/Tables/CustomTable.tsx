@@ -22,7 +22,7 @@ export interface ColumnType<T> {
   /** Trường dữ liệu trỏ vào object T */
   dataIndex?: keyof T | string
   /** Hàm render tuỳ biến giao diện cho cell */
-  render?: (value: any, record: T, index: number) => React.ReactNode
+  render?: (value: unknown, record: T, index: number) => React.ReactNode
   /** Chiều rộng của cột */
   width?: string | number
   /** Căn lề của cột */
@@ -73,7 +73,7 @@ export interface CustomTableProps<T> {
  * CustomTable — Component bảng dữ liệu linh hoạt dựa trên shadcn/ui.
  * Giao diện và API được thiết kế mô phỏng theo Table của Ant Design.
  */
-const CustomTable = <T extends Record<string, any>>({
+const CustomTable = <T extends Record<string, unknown>>({
   columns,
   data,
   rowSelection,

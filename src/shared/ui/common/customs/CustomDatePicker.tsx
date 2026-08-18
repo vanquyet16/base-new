@@ -12,7 +12,6 @@
  */
 import React, {
   useCallback,
-  useEffect,
   useId,
   useMemo,
   useRef,
@@ -315,8 +314,8 @@ const InputDatePicker = React.memo(
     const inputRef = useRef<HTMLInputElement>(null)
     const [isOpen, setIsOpen] = useState(false)
 
-    // isFocused ref dùng để chặn việc ghi đè text khi user đang gõ
-    const isFocused = useRef(false)
+    // isFocused state dùng để chặn việc ghi đè text khi user đang gõ
+    const [isFocused, setIsFocused] = useState(false)
     // skipOpenRef dùng để chặn việc mở lại popover khi trả focus về input
     const skipOpenRef = useRef(false)
 
@@ -324,17 +323,18 @@ const InputDatePicker = React.memo(
     const [inputText, setInputText] = useState<string>(() =>
       pickerValue && isValid(pickerValue) ? format(pickerValue, displayFormat) : '',
     )
+    const [prevPickerValue, setPrevPickerValue] = useState(pickerValue)
 
-    // Đồng bộ từ ngoài vào khi pickerValue thay đổi (và người dùng không đang focus)
-    useEffect(() => {
-      if (!isFocused.current) {
-        const newText = pickerValue && isValid(pickerValue) ? format(pickerValue, displayFormat) : ''
-        setInputText(newText)
+    // Đồng bộ an toàn khi pickerValue thay đổi mà không gây cascading render trong effect
+    if (pickerValue !== prevPickerValue) {
+      setPrevPickerValue(pickerValue)
+      if (!isFocused) {
+        setInputText(pickerValue && isValid(pickerValue) ? format(pickerValue, displayFormat) : '')
       }
-    }, [pickerValue, displayFormat])
+    }
 
     const handleFocus = useCallback(() => {
-      isFocused.current = true
+      setIsFocused(true)
       if (skipOpenRef.current) {
         skipOpenRef.current = false
         return
@@ -343,7 +343,7 @@ const InputDatePicker = React.memo(
     }, [])
 
     const handleBlur = useCallback(() => {
-      isFocused.current = false
+      setIsFocused(false)
       if (!inputText) return
 
       const parsed = parseFlexibleDate(inputText, displayFormat, inputFormat)
@@ -375,7 +375,7 @@ const InputDatePicker = React.memo(
     )
 
     const handleCalendarSelect = useCallback(
-      (val: any) => {
+      (val: unknown) => {
         onPickerChange(val as Date | undefined)
         setIsOpen(false)
         // Lưu ý: Đánh dấu để lần focus tới không mở lại popover
@@ -466,7 +466,7 @@ const InputDatePicker = React.memo(
             }}
           >
             <AnimatedCalendarStandalone
-              {...(calendarProps as any)}
+              {...(calendarProps as unknown as React.ComponentProps<typeof AnimatedCalendarStandalone>)}
               mode="single"
               value={pickerValue}
               onChange={handleCalendarSelect}
@@ -519,7 +519,7 @@ export const CustomDatePicker = React.memo(
     const effectiveOutputFmt = outputFormatStr ?? displayFormat
 
     // Parse giá trị hiện tại
-    const parsedValue = useMemo<any>(() => {
+    const parsedValue = useMemo<Date | DateRange | Date[] | undefined>(() => {
       if (value === null || value === undefined) return undefined
       if (mode === 'single') return toDate(value as DateInputValue, inputFormat)
       if (mode === 'range') {
@@ -535,7 +535,7 @@ export const CustomDatePicker = React.memo(
     }, [value, mode, inputFormat])
 
     // Parse giá trị mặc định
-    const parsedDefault = useMemo<any>(() => {
+    const parsedDefault = useMemo<Date | DateRange | Date[] | undefined>(() => {
       if (defaultValue === null || defaultValue === undefined) return undefined
       if (mode === 'single') return toDate(defaultValue as DateInputValue, inputFormat)
       if (mode === 'range') {
@@ -552,7 +552,7 @@ export const CustomDatePicker = React.memo(
 
     // Handler trung tâm: chuyển đổi Date -> OutputType trước khi trả về
     const handleChange = useCallback(
-      (val: any) => {
+      (val: unknown) => {
         if (!onChange) return
 
         if (mode === 'single') {
@@ -607,12 +607,12 @@ export const CustomDatePicker = React.memo(
     return (
       <AnimatedCalendar
         ref={ref}
-        {...(restProps as any)}
+        {...(restProps as unknown as React.ComponentProps<typeof AnimatedCalendar>)}
         {...commonProps}
-        mode={mode as any}
-        value={parsedValue}
-        defaultValue={parsedDefault}
-        onChange={handleChange}
+        mode={mode as unknown as 'single'}
+        value={parsedValue as unknown as Date}
+        defaultValue={parsedDefault as unknown as Date}
+        onChange={handleChange as unknown as (val: unknown) => void}
         formatStr={displayFormat}
         initialView={initialView}
       />

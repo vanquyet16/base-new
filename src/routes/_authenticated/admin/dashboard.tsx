@@ -1,9 +1,7 @@
+// PATH: src/routes/_authenticated/admin/dashboard.tsx
 import { createFileRoute } from '@tanstack/react-router'
+import { AdminDashboardPage } from '@/features/admin'
 
 export const Route = createFileRoute('/_authenticated/admin/dashboard')({
-  component: RouteComponent,
+  component: AdminDashboardPage,
 })
-
-function RouteComponent() {
-  return <div>Hello "/_authenticated/admin/dashboard"!</div>
-}

@@ -124,6 +124,7 @@ export const useUpload = (options: UseUploadOptions = {}) => {
   const uploadMutation = useMutation<UploadResponse, Error, UploadParams>({
     mutationFn: (params: UploadParams) => uploadFileApi(params),
   })
+  const { mutateAsync: uploadMutateAsync } = uploadMutation
 
   /**
    * 1. Xóa một file đã upload khỏi danh sách
@@ -280,7 +281,7 @@ export const useUpload = (options: UseUploadOptions = {}) => {
         }))
 
         try {
-          const response = await uploadMutation.mutateAsync({
+          const response = await uploadMutateAsync({
             file,
             fileType,
             isSign,
@@ -356,7 +357,7 @@ export const useUpload = (options: UseUploadOptions = {}) => {
 
       await Promise.allSettled(uploadPromises)
     },
-    [maxSize, maxCount, allowedExtensions, fileType, isSign, isPublish, userName, uploadMutation],
+    [maxSize, maxCount, allowedExtensions, fileType, isSign, isPublish, userName, uploadMutateAsync],
   )
 
   /**

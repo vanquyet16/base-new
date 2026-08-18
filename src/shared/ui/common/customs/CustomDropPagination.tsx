@@ -8,18 +8,24 @@ import {
   components,
   type ValueContainerProps,
   type ControlProps,
+  type ClearIndicatorProps,
+  type InputProps,
+  type OnChangeValue,
+  type ActionMeta,
+  type PropsValue,
+  type OptionsOrGroups,
 } from 'react-select'
 
 export interface SelectOption {
   value: string | number
   label: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface CustomDropPaginationProps<
   Option = SelectOption,
   Group extends GroupBase<Option> = GroupBase<Option>,
-  Additional = any,
+  Additional = unknown,
   IsMulti extends boolean = false,
 > extends Omit<AsyncPaginateProps<Option, Group, Additional, IsMulti>, 'loadOptions'> {
   options?: Option[]
@@ -29,8 +35,8 @@ export interface CustomDropPaginationProps<
   placeholder?: string
   error?: boolean
   valueType?: 'object' | 'primitive'
-  formatPrimitiveLabel?: (value: any) => string
-  onValueChange?: (value: any) => void
+  formatPrimitiveLabel?: (value: unknown) => string
+  onValueChange?: (value: unknown) => void
   labelKey?: string
   valueKey?: string
 }
@@ -45,7 +51,6 @@ const DropdownIndicator = () => (
 
 const IndicatorSeparator = () => null
 
-// Ép kiểu `any` để tránh lặp Template Generic đối với phần Component chỉ mang tính hiển thị UI
 const CustomValueContainer = <
   Option = SelectOption,
   IsMulti extends boolean = false,
@@ -54,7 +59,9 @@ const CustomValueContainer = <
   children,
   ...props
 }: ValueContainerProps<Option, IsMulti, Group>) => {
-  const { maxTags, isMulti } = props.selectProps as any
+  const selectProps = props.selectProps as { maxTags?: number; isMulti?: boolean }
+  const maxTags = selectProps.maxTags
+  const isMulti = selectProps.isMulti
   const selected = props.getValue()
 
   if (!isMulti || !maxTags || selected.length <= maxTags) {
@@ -65,7 +72,7 @@ const CustomValueContainer = <
     return <components.ValueContainer {...props}>{children}</components.ValueContainer>
   }
 
-  const [values, input] = children as [any[], any]
+  const [values, input] = children as [React.ReactNode[], React.ReactNode]
   const displayValues = values.slice(0, maxTags)
   const remainingCount = selected.length - maxTags
 
@@ -85,7 +92,7 @@ const CustomValueContainer = <
 const CustomDropPagination = <
   Option = SelectOption,
   Group extends GroupBase<Option> = GroupBase<Option>,
-  Additional = any,
+  Additional = unknown,
   IsMulti extends boolean = false,
 >(
   props: CustomDropPaginationProps<Option, Group, Additional, IsMulti>,
@@ -111,17 +118,16 @@ const CustomDropPagination = <
   } = props
 
   // ── Khóa Ref cho formatPrimitiveLabel để cản memo tạo thêm phiên bản mới ─────
-  // formatPrimitiveLabel thường được component cha khai báo inline → stale ref pattern
   const formatPrimitiveLabelRef = React.useRef(formatPrimitiveLabel)
   React.useLayoutEffect(() => {
     formatPrimitiveLabelRef.current = formatPrimitiveLabel
   })
   const stableFormatLabel = React.useCallback(
-    (v: any) => (formatPrimitiveLabelRef.current ? formatPrimitiveLabelRef.current(v) : String(v)),
-    [], // Cố định vĩnh viễn (ổn định)
+    (v: unknown) => (formatPrimitiveLabelRef.current ? formatPrimitiveLabelRef.current(v) : String(v)),
+    [],
   )
 
-  // ── Khóa Ref cho onChange / onValueChange (tương tự pattern ở trên) ─────────
+  // ── Khóa Ref cho onChange / onValueChange ─────────
   const onChangeRef = React.useRef(onChange)
   const onValueChangeRef = React.useRef(onValueChange)
   React.useLayoutEffect(() => {
@@ -135,7 +141,7 @@ const CustomDropPagination = <
   const [inputValue, setInputValue] = React.useState('')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const selectRef = React.useRef<any>(null)
+  const selectRef = React.useRef<HTMLInputElement | null>(null)
   const menuIsOpenRef = React.useRef(false)
 
   const getInput = React.useCallback(
@@ -205,7 +211,6 @@ const CustomDropPagination = <
   }, [isMulti])
 
   // ── Gọi dữ liệu (loadOptions) ───────────────────────────────────────────────
-  // Giữ ref cố định cho providedLoadOptions + staticOptions để memo không bị re-render
   const providedLoadOptionsRef = React.useRef(providedLoadOptions)
   const staticOptionsRef = React.useRef(staticOptions)
   React.useLayoutEffect(() => {
@@ -214,19 +219,19 @@ const CustomDropPagination = <
   })
 
   const internalLoadOptions = React.useCallback(
-    async (search: string, prevOptions: any, additional: any) => {
+    async (search: string, prevOptions: OptionsOrGroups<Option, Group>, additional?: Additional) => {
       if (providedLoadOptionsRef.current)
         return providedLoadOptionsRef.current(search, prevOptions, additional)
       if (staticOptionsRef.current) {
-        const filtered = (staticOptionsRef.current as any[]).filter((o) => {
+        const filtered = (staticOptionsRef.current as Array<Record<string, unknown>>).filter((o) => {
           const label = o[labelKey] || o.label
-          return label?.toString().toLowerCase().includes(search.toLowerCase())
+          return String(label ?? '').toLowerCase().includes(search.toLowerCase())
         })
-        return { options: filtered as Option[], hasMore: false }
+        return { options: filtered as unknown as Option[], hasMore: false }
       }
       return { options: [], hasMore: false }
     },
-    [labelKey], // labelKey là 1 string truyền vào — cố định theo giá trị truyền từ ngoài; còn lại bọc ở refs
+    [labelKey],
   )
 
   // ── Giá trị dẫn xuất (Derived value) ────────────────────────────────────────
@@ -245,16 +250,18 @@ const CustomDropPagination = <
 
   // ── Lắng nghe sự kiện (onChange) ────────────────────────────────────────────
   const handleOnChange = React.useCallback(
-    (newValue: any, actionMeta: any) => {
-      let finalValue: any = newValue
+    (newValue: OnChangeValue<Option, IsMulti>, actionMeta: ActionMeta<Option>) => {
+      let finalValue: unknown = newValue
       if (valueType === 'primitive') {
         if (isMulti) {
-          finalValue = Array.isArray(newValue) ? newValue.map((opt: any) => opt[valueKey]) : []
+          finalValue = Array.isArray(newValue)
+            ? (newValue as Array<Record<string, unknown>>).map((opt) => opt[valueKey])
+            : []
         } else {
-          finalValue = newValue?.[valueKey]
+          finalValue = (newValue as Record<string, unknown> | null)?.[valueKey]
         }
       }
-      onChangeRef.current?.(finalValue, actionMeta)
+      onChangeRef.current?.(finalValue as OnChangeValue<Option, IsMulti>, actionMeta)
       onValueChangeRef.current?.(finalValue)
 
       if (!isMulti) setInputValue('')
@@ -265,7 +272,6 @@ const CustomDropPagination = <
   )
 
   // ── Control giao diện (MultiControl) ────────────────────────────────────────
-  // Giữ được tính ổn định do phương thức toggleMenu đã được bọc useMemo từ trước
   const MultiControl = React.useCallback(
     (controlProps: ControlProps<Option, IsMulti, Group>) => (
       <components.Control
@@ -292,8 +298,7 @@ const CustomDropPagination = <
   )
 
   // ── Thành phần Xóa thẻ (ClearIndicator) ─────────────────────────────────────
-  // Đã bọc Memo để không tái tạo mới Object mỗi khi màn hình update component
-  const ClearIndicator = React.useCallback((clearProps: any) => {
+  const ClearIndicator = React.useCallback((clearProps: ClearIndicatorProps<Option, IsMulti, Group>) => {
     const {
       innerProps: { ref, ...restInnerProps },
     } = clearProps
@@ -309,7 +314,7 @@ const CustomDropPagination = <
   }, [])
 
   const InputComponent = React.useCallback(
-    (inputProps: any) => (
+    (inputProps: InputProps<Option, IsMulti, Group>) => (
       <components.Input
         {...inputProps}
         className="m-0 p-0 text-foreground"
@@ -319,23 +324,21 @@ const CustomDropPagination = <
     [],
   )
 
-  // ── Gộp chung Components — tối ưu Memo chặn việc cấp phát Object mới liên tục
+  // ── Gộp chung Components ──────────────────────────────────────────────────
   const customComponents: SelectComponentsConfig<Option, IsMulti, Group> = React.useMemo(
     () => ({
       ...(isMulti ? { Control: MultiControl } : {}),
-      ValueContainer: CustomValueContainer as any,
+      ValueContainer: CustomValueContainer as unknown as typeof components.ValueContainer,
       DropdownIndicator,
       ClearIndicator,
       Input: InputComponent,
       IndicatorSeparator,
       ...externalComponents,
     }),
-    // MultiControl chỉ đổi khi toggleMenu bị tác động (hiếm gặp); externalComponents
-    // phải cố định (đã được cha bọc cho). ClearIndicator/InputComponent là bất biến.
     [isMulti, MultiControl, ClearIndicator, InputComponent, externalComponents],
   )
 
-  // ── classNames — Object bền vững qua useMemo (chỉ thay đổi dựa vào isFocused/error/className/isMulti)
+  // ── classNames — Object bền vững qua useMemo ────────────────────────────────
   const classNames = React.useMemo(
     () => ({
       container: () => 'w-full',
@@ -368,10 +371,10 @@ const CustomDropPagination = <
       menu: () =>
         'z-50 mt-2 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
       menuList: () => 'p-1',
-      option: ({ isFocused, isSelected }: { isFocused: boolean; isSelected: boolean }) =>
+      option: ({ isFocused: isOptFocused, isSelected }: { isFocused: boolean; isSelected: boolean }) =>
         cn(
           'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none transition-colors',
-          isFocused && 'bg-accent text-accent-foreground',
+          isOptFocused && 'bg-accent text-accent-foreground',
           isSelected && 'bg-primary text-primary-foreground font-medium',
         ),
       noOptionsMessage: () => 'py-6 text-center text-sm text-muted-foreground',
@@ -380,7 +383,7 @@ const CustomDropPagination = <
     [isFocused, error, className, isMulti],
   )
 
-  // ── Thuộc tính dành riêng cho Multi-Select (Bọc Object bền vững) ────────────
+  // ── Thuộc tính dành riêng cho Multi-Select ──────────────────────────────────
   const multiProps = React.useMemo(
     () =>
       isMulti
@@ -405,7 +408,6 @@ const CustomDropPagination = <
             closeMenuOnSelect: false,
             blurInputOnSelect: false,
           },
-    // menuIsOpen cố tình đưa vào mảng ở chế độ multi-select để có thể pass qua cho prop 'controlled'
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isMulti, isMulti ? menuIsOpen : inputValue],
   )
@@ -415,19 +417,28 @@ const CustomDropPagination = <
     <div ref={containerRef} className="relative w-full">
       <AsyncPaginate
         {...rest}
-        selectRef={selectRef}
-        loadOptions={internalLoadOptions as any}
-        getOptionLabel={(option: any) => option[labelKey] || option.label}
-        getOptionValue={(option: any) => option[valueKey] || option.value}
+        selectRef={selectRef as unknown as React.Ref<never>}
+        loadOptions={internalLoadOptions as unknown as AsyncPaginateProps<Option, Group, Additional, IsMulti>['loadOptions']}
+        getOptionLabel={(option: Option) =>
+          ((option as Record<string, unknown>)[labelKey] as string) ||
+          ((option as { label?: string }).label ?? '')
+        }
+        getOptionValue={(option: Option) =>
+          String(
+            (option as Record<string, unknown>)[valueKey] ||
+            (option as { value?: unknown }).value ||
+            '',
+          )
+        }
         isMulti={isMulti}
         onFocus={() => setIsFocused(true)}
         onBlur={handleBlur}
         menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
         portalClassName="custom-select-portal"
         {...multiProps}
-        {...({ maxTags } as any)}
-        value={internalValue as any}
-        onChange={handleOnChange as any}
+        {...(maxTags !== undefined ? { maxTags } : {})}
+        value={internalValue as PropsValue<Option>}
+        onChange={handleOnChange as unknown as (newValue: unknown, actionMeta: unknown) => void}
         components={customComponents}
         placeholder={placeholder}
         tabSelectsValue={false}

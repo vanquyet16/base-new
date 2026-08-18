@@ -523,7 +523,12 @@ function SidebarMenuButton({
     return button
   }
 
-  const tooltipContent = typeof tooltip === 'string' ? tooltip : (tooltip as any)?.children
+  const tooltipContent =
+    typeof tooltip === 'string'
+      ? tooltip
+      : typeof tooltip === 'object' && tooltip !== null && 'children' in tooltip
+        ? (tooltip as { children: React.ReactNode }).children
+        : null
 
   return (
     <AnimatedTooltip

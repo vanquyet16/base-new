@@ -47,7 +47,7 @@ const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       children,
       tooltip,
       placement = 'top',
-      colorTooltip,
+      colorTooltip: _colorTooltip,
       loading = false,
       icon,
       startIcon,

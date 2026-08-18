@@ -19,13 +19,15 @@ export const demoQueries = {
 
 // =============== CHUẨN MẪU HOOK MUTATION (Thêm/Sửa/Xóa) ===============
 
-export const useAddDemoMutation = (options?: UseMutationOptions<any, Error, any>) => {
+export const useAddDemoMutation = <TData = unknown, TVariables = unknown>(
+  options?: UseMutationOptions<TData, Error, TVariables>,
+) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: TVariables): Promise<TData> => {
       // Ví dụ: return await apiAddDemo(data); 
       console.log('API Gọi tạo mới với data:', data);
-      return data;
+      return data as unknown as TData;
     },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['demo-component'] });

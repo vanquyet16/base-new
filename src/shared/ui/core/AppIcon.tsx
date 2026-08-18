@@ -44,22 +44,23 @@ const AppIcon = React.memo(
   }: AppIconProps) => {
     // Lấy component icon tương ứng dựa trên type và name
     const IconComponent = useMemo(() => {
+      type IconMap = Record<string, React.ComponentType<{ size?: number | string; color?: string; className?: string }>>
       try {
         switch (type) {
           case "lucide":
-            return (LucideIcons as any)[name];
+            return (LucideIcons as unknown as IconMap)[name];
           case "tabler":
-            return (TablerIcons as any)[name];
+            return (TablerIcons as unknown as IconMap)[name];
           case "ant":
-            return (AiIcons as any)[name];
+            return (AiIcons as unknown as IconMap)[name];
           case "fa":
-            return (FaIcons as any)[name];
+            return (FaIcons as unknown as IconMap)[name];
           case "hi":
-            return (HiIcons as any)[name];
+            return (HiIcons as unknown as IconMap)[name];
           case "md":
-            return (MdIcons as any)[name];
+            return (MdIcons as unknown as IconMap)[name];
           default:
-            return (LucideIcons as any)[name];
+            return (LucideIcons as unknown as IconMap)[name];
         }
       } catch (error) {
         console.error(`[AppIcon] Icon "${name}" not found in library "${type}"`, error);

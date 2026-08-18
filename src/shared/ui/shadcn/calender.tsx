@@ -969,8 +969,10 @@ const CalendarContent = React.memo(
       if (!value) {
         const today = new Date()
         if (!isSameMonth(today, currentMonth)) {
-          setDirection(isAfter(today, currentMonth) ? 1 : -1)
-          setCurrentMonth(startOfMonth(today))
+          queueMicrotask(() => {
+            setDirection(isAfter(today, currentMonth) ? 1 : -1)
+            setCurrentMonth(startOfMonth(today))
+          })
         }
         return
       }
@@ -978,8 +980,10 @@ const CalendarContent = React.memo(
       // Only sync in single mode when value is a valid Date
       if (mode === 'single' && value instanceof Date && isValid(value)) {
         if (!isSameMonth(value, currentMonth)) {
-          setDirection(isAfter(value, currentMonth) ? 1 : -1)
-          setCurrentMonth(startOfMonth(value))
+          queueMicrotask(() => {
+            setDirection(isAfter(value, currentMonth) ? 1 : -1)
+            setCurrentMonth(startOfMonth(value))
+          })
         }
       }
     }, [value, mode, currentMonth])
@@ -1468,7 +1472,7 @@ const CalendarContent = React.memo(
                   if (initialView === 'months') {
                     // Nếu picker chỉ dành cho tháng, chọn xong thì gán value (Date) và đóng luôn
                     const newDate = setMonth(currentMonth, m)
-                    onChange?.(newDate as any)
+                    onChange?.(newDate as unknown as CalendarValue<T>)
                     onClose?.()
                   }
                 }}
@@ -1489,7 +1493,7 @@ const CalendarContent = React.memo(
                   if (initialView === 'years') {
                     // Nếu picker chỉ dành cho năm, chọn xong thì gán value (Date) và đóng luôn
                     const newDate = setYear(currentMonth, y)
-                    onChange?.(newDate as any)
+                    onChange?.(newDate as unknown as CalendarValue<T>)
                     onClose?.()
                   }
                 }}
