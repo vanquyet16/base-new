@@ -1,6 +1,6 @@
 // PATH: src/features/demo-component/components/DemoStandardForm.tsx
-import React from 'react'
-import type { UseFormReturn } from 'react-hook-form'
+import React, { useCallback } from 'react'
+import type { FieldErrors, UseFormReturn } from 'react-hook-form'
 
 import { Form } from '@/shared/ui/shadcn/form'
 import { FormFieldWrapper } from '@/shared/ui/common/FormFieldWrapper'
@@ -10,6 +10,8 @@ import { Button } from '@/shared/ui/shadcn/button'
 import CustomDatePicker, { DATE_FORMATS } from '@/shared/ui/common/customs/CustomDatePicker'
 import CustomDropPagination, { type SelectOption } from '@/shared/ui/common/customs/CustomDropPagination'
 import CustomTableUpload from '@/shared/ui/common/customs/Tables/CustomTableUpload'
+import { toast } from '@/shared/stores/toast.store'
+import { cn } from '@/shared/lib/utils'
 import { useDemoComponentLogic } from '../hooks/useDemoComponentLogic'
 import type { DemoComponentFormValues } from '../schemas/demo-component.schema'
 
@@ -30,13 +32,21 @@ export interface DemoStandardFormProps {
 export const DemoStandardForm = React.memo(({ form, onSubmit }: DemoStandardFormProps) => {
   const { loadDemoOptions } = useDemoComponentLogic()
 
+  // Callback khi submit form thất bại do vi phạm validation
+  const handleInvalid = useCallback((errors: FieldErrors<DemoComponentFormValues>) => {
+    console.warn('Form validation failed:', errors)
+    toast.error('Vui lòng kiểm tra và điền đầy đủ các trường bắt buộc!', {
+      title: 'Thông tin chưa hợp lệ',
+    })
+  }, [])
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={form.handleSubmit(onSubmit, handleInvalid)} className="space-y-4" noValidate>
         {/* Hàng 1: 4 cột thông tin cơ bản */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <FormFieldWrapper control={form.control} name="cqBanHanh" label="CQ ban hành" required>
-            {(field) => (
+            {(field, fieldState) => (
               <CustomDropPagination<SelectOption, never, { page: number }, true>
                 loadOptions={loadDemoOptions as unknown as (search: string, prevOptions: unknown, additional?: { page: number }) => Promise<{ options: SelectOption[]; hasMore: boolean; additional?: { page: number } }>}
                 additional={{ page: 1 }}
@@ -44,6 +54,7 @@ export const DemoStandardForm = React.memo(({ form, onSubmit }: DemoStandardForm
                 placeholder="Chọn nhiều cơ quan..."
                 isMulti
                 isClearable
+                error={!!fieldState.error}
                 maxTags={2}
                 valueKey="id"
                 labelKey="userName"
@@ -55,17 +66,24 @@ export const DemoStandardForm = React.memo(({ form, onSubmit }: DemoStandardForm
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="soVanBan" label="Số văn bản" required>
-            {(field) => <Input {...field} placeholder="Nhập số..." />}
+            {(field, fieldState) => (
+              <Input
+                {...field}
+                placeholder="Nhập số..."
+                className={cn(fieldState.error && 'border-destructive focus-visible:ring-destructive/30')}
+              />
+            )}
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="loaiVanBan" label="Loại văn bản" required>
-            {(field) => (
+            {(field, fieldState) => (
               <CustomDropPagination<SelectOption>
                 maxTags={2}
                 value={field.value as string}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 valueType="primitive"
+                error={!!fieldState.error}
                 options={[
                   { value: 'Công văn', label: 'Công văn' },
                   { value: 'Nghị quyết', label: 'Nghị quyết' },
@@ -79,48 +97,63 @@ export const DemoStandardForm = React.memo(({ form, onSubmit }: DemoStandardForm
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="soDen" label="Số đến" required>
-            {(field) => <Input {...field} placeholder="Nhập số đến..." />}
+            {(field, fieldState) => (
+              <Input
+                {...field}
+                placeholder="Nhập số đến..."
+                className={cn(fieldState.error && 'border-destructive focus-visible:ring-destructive/30')}
+              />
+            )}
           </FormFieldWrapper>
         </div>
 
         {/* Hàng 2: 4 cột ngày tháng và ký hiệu */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <FormFieldWrapper control={form.control} name="ngayVanBan" label="Ngày văn bản" required>
-            {(field) => (
+            {(field, fieldState) => (
               <CustomDatePicker
                 mode="single"
                 value={field.value as Date | string | undefined}
                 onChange={field.onChange}
                 displayFormat={DATE_FORMATS.VN_DATE}
                 outputType="date"
+                error={!!fieldState.error}
                 placeholder="Chọn ngày..."
               />
             )}
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="ngayDen" label="Ngày đến" required>
-            {(field) => (
+            {(field, fieldState) => (
               <CustomDatePicker
                 mode="single"
                 outputType="iso"
                 value={field.value as string | undefined}
                 onChange={field.onChange}
+                error={!!fieldState.error}
                 placeholder="Chọn ngày đến..."
               />
             )}
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="soKyHieu" label="Số ký hiệu" required>
-            {(field) => <Input {...field} placeholder="Nhập số ký hiệu..." />}
+            {(field, fieldState) => (
+              <Input
+                {...field}
+                placeholder="Nhập số ký hiệu..."
+                className={cn(fieldState.error && 'border-destructive focus-visible:ring-destructive/30')}
+              />
+            )}
           </FormFieldWrapper>
 
           <FormFieldWrapper control={form.control} name="hanXuLy" label="Hạn xử lý">
-            {(field) => (
+            {(field, fieldState) => (
               <CustomDatePicker
                 mode="single"
                 outputType="iso"
                 value={field.value as string | undefined}
                 onChange={field.onChange}
+                error={!!fieldState.error}
                 placeholder="dd/MM/yyyy"
               />
             )}
@@ -129,11 +162,14 @@ export const DemoStandardForm = React.memo(({ form, onSubmit }: DemoStandardForm
 
         {/* Hàng 3: 1 cột Trích yếu (Full width) */}
         <FormFieldWrapper control={form.control} name="trichYeu" label="Trích yếu" required>
-          {(field) => (
+          {(field, fieldState) => (
             <Textarea
               {...field}
               placeholder="Nhập trích yếu..."
-              className="min-h-[80px] resize-none shadow-sm"
+              className={cn(
+                'min-h-[80px] resize-none shadow-sm',
+                fieldState.error && 'border-destructive focus-visible:ring-destructive/30',
+              )}
             />
           )}
         </FormFieldWrapper>

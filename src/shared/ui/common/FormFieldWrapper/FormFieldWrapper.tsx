@@ -5,9 +5,11 @@ import {
   type FieldPath,
   type FieldValues,
   type ControllerRenderProps,
+  type ControllerFieldState,
 } from 'react-hook-form'
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/shadcn/form'
+import { cn } from '@/shared/lib/utils'
 
 export interface FormFieldWrapperProps<
   TFieldValues extends FieldValues,
@@ -22,14 +24,16 @@ export interface FormFieldWrapperProps<
   rightCustomElement?: React.ReactNode
   children?:
     | React.ReactElement
-    | ((field: ControllerRenderProps<TFieldValues, TName>) => React.ReactNode)
+    | ((
+        field: ControllerRenderProps<TFieldValues, TName>,
+        fieldState: ControllerFieldState,
+      ) => React.ReactNode)
 }
 
 /**
  * FormFieldWrapper — Wrapper chuẩn cho form field.
  * Tự động thêm dấu * bắt buộc khi truyền prop `required={true}`.
- * Có thể truyền `children` là React Element (sẽ được clone với field props),
- * hoặc render function `(field) => <.../>` cho trường hợp phức tạp hơn.
+ * Tự động kích hoạt trạng thái lỗi và hiển thị thông báo validation bên dưới.
  */
 export function FormFieldWrapper<
   TFieldValues extends FieldValues,
@@ -47,29 +51,46 @@ export function FormFieldWrapper<
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          <div className="flex items-center justify-between">
-            {label && (
-              <FormLabel>
-                {label}
-                {/* Hiển thị dấu * bắt buộc nếu required=true */}
-                {required && <span className="ml-0.5 text-destructive">*</span>}
-              </FormLabel>
+      render={({ field, fieldState }) => {
+        const hasError = !!fieldState.error
+        const errorMessage = fieldState.error?.message
+
+        return (
+          <FormItem className={cn('space-y-1.5', className)}>
+            <div className="flex items-center justify-between">
+              {label && (
+                <FormLabel className={cn(hasError && 'text-destructive font-medium')}>
+                  {label}
+                  {required && <span className="ml-0.5 text-destructive">*</span>}
+                </FormLabel>
+              )}
+              {rightCustomElement && rightCustomElement}
+            </div>
+            <FormControl>
+              {typeof children === 'function'
+                ? children(field, fieldState)
+                : isValidElement(children)
+                  ? cloneElement(children, {
+                      ...field,
+                      error: hasError,
+                      errorMessage: errorMessage,
+                      className: cn(
+                        hasError && 'border-destructive focus-visible:ring-destructive/30',
+                        (children.props as { className?: string })?.className,
+                      ),
+                    } as never)
+                  : children}
+            </FormControl>
+            {hasError && errorMessage ? (
+              <p className="text-[12px] font-medium text-destructive animate-in fade-in slide-in-from-top-1">
+                {errorMessage}
+              </p>
+            ) : (
+              <FormMessage />
             )}
-            {rightCustomElement && rightCustomElement}
-          </div>
-          <FormControl>
-            {typeof children === 'function'
-              ? children(field)
-              : isValidElement(children)
-                ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  cloneElement(children, field as any)
-                : children}
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+          </FormItem>
+        )
+      }}
     />
   )
 }
