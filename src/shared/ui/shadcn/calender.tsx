@@ -60,6 +60,12 @@ export type CalendarMode = 'single' | 'range' | 'multiple'
 export type CalendarView = 'days' | 'months' | 'years' | 'time'
 export type CalendarSize = 'sm' | 'md' | 'lg'
 
+export type CalendarValue<T extends CalendarMode = 'single'> = T extends 'single'
+  ? Date | undefined
+  : T extends 'range'
+    ? DateRange | undefined
+    : Date[]
+
 export interface DateRange {
   from: Date | undefined
   to: Date | undefined
@@ -1472,7 +1478,7 @@ const CalendarContent = React.memo(
                   if (initialView === 'months') {
                     // Nếu picker chỉ dành cho tháng, chọn xong thì gán value (Date) và đóng luôn
                     const newDate = setMonth(currentMonth, m)
-                    onChange?.(newDate as unknown as CalendarValue<T>)
+                    onChange?.(newDate)
                     onClose?.()
                   }
                 }}
@@ -1493,7 +1499,7 @@ const CalendarContent = React.memo(
                   if (initialView === 'years') {
                     // Nếu picker chỉ dành cho năm, chọn xong thì gán value (Date) và đóng luôn
                     const newDate = setYear(currentMonth, y)
-                    onChange?.(newDate as unknown as CalendarValue<T>)
+                    onChange?.(newDate)
                     onClose?.()
                   }
                 }}
